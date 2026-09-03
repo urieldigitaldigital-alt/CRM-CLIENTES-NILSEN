@@ -2,16 +2,11 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
-import { LoginForm } from "@/components/forms/login-form";
+import { RegisterForm } from "@/components/forms/register-form";
 
-export default async function LoginPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ from?: string }>;
-}) {
+export default async function RegisterPage() {
   const user = await getCurrentUser();
   if (user) redirect("/dashboard");
-  const { from } = await searchParams;
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4">
@@ -29,26 +24,22 @@ export default async function LoginPage({
             <Sparkles className="size-6" />
           </div>
           <h1 className="font-display text-xl font-semibold tracking-tight">
-            Centro de Operaciones
+            Creá tu cuenta
           </h1>
           <p className="mt-1 text-sm text-muted">
-            Iniciá sesión para ver tu día.
+            Centro de Operaciones para tu agencia.
           </p>
         </div>
 
         <div className="rounded-xl border border-border bg-surface p-6 shadow-sm">
-          <LoginForm from={from ?? "/dashboard"} />
+          <RegisterForm />
         </div>
 
         <p className="mt-4 text-center text-sm text-muted">
-          ¿No tenés cuenta?{" "}
-          <Link href="/register" className="font-medium text-accent hover:underline">
-            Registrate
+          ¿Ya tenés cuenta?{" "}
+          <Link href="/login" className="font-medium text-accent hover:underline">
+            Iniciá sesión
           </Link>
-        </p>
-
-        <p className="mt-2 text-center text-xs text-muted">
-          Cuenta de demostración precargada · demo@agencia.com / demo1234
         </p>
       </div>
     </div>
