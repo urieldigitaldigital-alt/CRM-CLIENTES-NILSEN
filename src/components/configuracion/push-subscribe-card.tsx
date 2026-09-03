@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  getExistingSubscription,
+  ensureSubscriptionOwnedByCurrentUser,
   isPushSupported,
   subscribeToPush,
   unsubscribeFromPush,
@@ -28,7 +28,7 @@ export function PushSubscribeCard() {
       setStatus("denied");
       return;
     }
-    const sub = await getExistingSubscription();
+    const sub = await ensureSubscriptionOwnedByCurrentUser();
     setStatus(sub ? "on" : "off");
   }
 

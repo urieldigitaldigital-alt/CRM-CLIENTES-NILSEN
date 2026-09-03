@@ -15,6 +15,23 @@ export async function getExistingSubscription() {
   return registration.pushManager.getSubscription();
 }
 
+/**
+ * Push subscriptions are per-browser/device, not per-account: if a device
+ * already subscribed as one user and a different user later logs in on the
+ * same device, the browser's PushManager still returns that same
+ * subscription. Re-POSTing it here re-associates it (server-side, via
+ * requireUser()) with whoever is actually logged in now, so "Activadas"
+ * always reflects who the device will really notify.
+ */
+async function syncSubscriptionToServer(subscription: PushSubscription) {
+  const res = await fetch("/api/push/subscribe", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(subscription.toJSON()),
+  });
+  if (!res.ok) throw new Error("No se pudo guardar la suscripción en el servidor");
+}
+
 export async function subscribeToPush() {
   const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
   if (!publicKey) throw new Error("Falta NEXT_PUBLIC_VAPID_PUBLIC_KEY");
@@ -28,13 +45,15 @@ export async function subscribeToPush() {
     applicationServerKey: urlBase64ToUint8Array(publicKey) as BufferSource,
   });
 
-  const res = await fetch("/api/push/subscribe", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(subscription.toJSON()),
-  });
-  if (!res.ok) throw new Error("No se pudo guardar la suscripción en el servidor");
+  await syncSubscriptionToServer(subscription);
 
+  return subscription;
+}
+
+/** Ensures an already-existing browser subscription is owned by the current user. */
+export async function ensureSubscriptionOwnedByCurrentUser() {
+  const subscription = await getExistingSubscription();
+  if (subscription) await syncSubscriptionToServer(subscription);
   return subscription;
 }
 
