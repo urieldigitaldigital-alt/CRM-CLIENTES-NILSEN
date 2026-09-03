@@ -14,6 +14,7 @@ import {
   StickyNote,
   Activity as ActivityIcon,
   ArrowLeft,
+  Repeat,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
@@ -51,6 +52,7 @@ const ACTIVITY_ICON: Record<string, typeof ActivityIcon> = {
   REUNION_CREADA: Calendar,
   PAGO_REGISTRADO: Wallet,
   PAGO_COBRADO: Wallet,
+  PAGO_RECURRENTE_GENERADO: Repeat,
   NOTA_AGREGADA: StickyNote,
 };
 
@@ -197,7 +199,14 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
           {client.payments.map((p) => (
             <Card key={p.id} className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
-                <p className="font-medium">{p.service ?? "Servicio"}</p>
+                <div className="flex items-center gap-2">
+                  <p className="font-medium">{p.service ?? "Servicio"}</p>
+                  {p.isRecurring && (
+                    <Badge variant="accent" className="gap-1">
+                      <Repeat className="size-3" /> Mensual
+                    </Badge>
+                  )}
+                </div>
                 <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted">
                   <span>Vence {formatDate(p.dueDate)}</span>
                   {p.paidDate && <span>· Pagado {formatDate(p.paidDate)}</span>}

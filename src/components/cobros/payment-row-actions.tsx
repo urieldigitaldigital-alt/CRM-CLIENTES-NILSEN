@@ -16,6 +16,7 @@ interface PaymentDefaults {
   status: PaymentStatus;
   paymentMethod: string | null;
   notes: string | null;
+  isRecurring: boolean;
   reminders?: { offsetLabel: string }[];
 }
 

@@ -1,12 +1,13 @@
 "use server";
 
 import { z } from "zod";
+import { addMonths } from "date-fns";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
-import { ActivityType, PaymentStatus, ReminderTargetType } from "@prisma/client";
+import { ActivityType, Payment, PaymentStatus, ReminderTargetType } from "@prisma/client";
 import { computeRemindAt } from "@/lib/reminders";
-import { parseDateOnly } from "@/lib/format";
+import { formatDate, parseDateOnly } from "@/lib/format";
 
 const paymentSchema = z.object({
   clientId: z.string().min(1, "Elegí un cliente"),
@@ -17,6 +18,7 @@ const paymentSchema = z.object({
   status: z.nativeEnum(PaymentStatus),
   paymentMethod: z.string().optional(),
   notes: z.string().optional(),
+  isRecurring: z.string().optional(),
 });
 
 export type PaymentFormState = { error?: string } | undefined;
@@ -35,6 +37,67 @@ async function syncReminders(paymentId: string, dueDate: Date, offsets: string[]
   }
 }
 
+/**
+ * When a recurring payment gets marked PAGADO, auto-generate next month's
+ * payment (same client/amount/service, same reminder offsets) so "pago hoy"
+ * alone sets up the reminder that fires again ~30 days out. Guarded against
+ * duplicates: a payment only ever spawns one follow-up.
+ */
+async function createRecurringFollowUp(payment: Payment) {
+  if (!payment.isRecurring) return;
+
+  const alreadyGenerated = await prisma.payment.findFirst({
+    where: { recurringParentId: payment.id },
+    select: { id: true },
+  });
+  if (alreadyGenerated) return;
+
+  const nextDueDate = addMonths(payment.dueDate, 1);
+
+  const previousReminders = await prisma.reminder.findMany({
+    where: { paymentId: payment.id },
+    select: { offsetLabel: true },
+    distinct: ["offsetLabel"],
+  });
+
+  const nextPayment = await prisma.payment.create({
+    data: {
+      userId: payment.userId,
+      clientId: payment.clientId,
+      service: payment.service,
+      amount: payment.amount,
+      contractedDate: payment.contractedDate,
+      dueDate: nextDueDate,
+      status: PaymentStatus.PENDIENTE,
+      paymentMethod: payment.paymentMethod,
+      notes: payment.notes,
+      isRecurring: true,
+      recurringParentId: payment.id,
+    },
+  });
+
+  for (const r of previousReminders) {
+    await prisma.reminder.create({
+      data: {
+        targetType: ReminderTargetType.PAYMENT,
+        paymentId: nextPayment.id,
+        offsetLabel: r.offsetLabel,
+        remindAt: computeRemindAt(nextDueDate, r.offsetLabel),
+      },
+    });
+  }
+
+  await prisma.activityLog.create({
+    data: {
+      userId: payment.userId,
+      clientId: payment.clientId,
+      paymentId: nextPayment.id,
+      type: ActivityType.PAGO_RECURRENTE_GENERADO,
+      message: `Cobro recurrente generado automáticamente: $${payment.amount.toLocaleString("es-AR")} vence ${formatDate(nextDueDate)}`,
+    },
+  });
+}
+
 export async function createPayment(
   _prevState: PaymentFormState,
   formData: FormData
@@ -46,6 +109,7 @@ export async function createPayment(
   const offsets = formData.getAll("reminders").map(String);
   const data = parsed.data;
   const dueDate = parseDateOnly(data.dueDate);
+  const isRecurring = data.isRecurring === "on";
 
   const payment = await prisma.payment.create({
     data: {
@@ -59,6 +123,7 @@ export async function createPayment(
       paidDate: data.status === PaymentStatus.PAGADO ? new Date() : null,
       paymentMethod: data.paymentMethod || null,
       notes: data.notes || null,
+      isRecurring,
     },
   });
 
@@ -70,9 +135,13 @@ export async function createPayment(
       clientId: data.clientId,
       paymentId: payment.id,
       type: ActivityType.PAGO_REGISTRADO,
-      message: `Cobro registrado: $${data.amount.toLocaleString("es-AR")}`,
+      message: `Cobro registrado: $${data.amount.toLocaleString("es-AR")}${isRecurring ? " (recurrente mensual)" : ""}`,
     },
   });
+
+  if (data.status === PaymentStatus.PAGADO && isRecurring) {
+    await createRecurringFollowUp(payment);
+  }
 
   revalidatePath("/cobros");
   revalidatePath("/dashboard");
@@ -96,6 +165,7 @@ export async function updatePayment(
   const offsets = formData.getAll("reminders").map(String);
   const data = parsed.data;
   const dueDate = parseDateOnly(data.dueDate);
+  const isRecurring = data.isRecurring === "on";
 
   const payment = await prisma.payment.update({
     where: { id },
@@ -110,6 +180,7 @@ export async function updatePayment(
         data.status === PaymentStatus.PAGADO ? existing.paidDate ?? new Date() : null,
       paymentMethod: data.paymentMethod || null,
       notes: data.notes || null,
+      isRecurring,
     },
   });
 
@@ -125,6 +196,9 @@ export async function updatePayment(
         message: `Pago cobrado: $${data.amount.toLocaleString("es-AR")}`,
       },
     });
+    if (isRecurring) {
+      await createRecurringFollowUp(payment);
+    }
   }
 
   revalidatePath("/cobros");
@@ -151,6 +225,9 @@ export async function markPaymentPaid(id: string) {
       message: `Pago cobrado: $${payment.amount.toLocaleString("es-AR")}`,
     },
   });
+  if (existing.status !== PaymentStatus.PAGADO && payment.isRecurring) {
+    await createRecurringFollowUp(payment);
+  }
   revalidatePath("/cobros");
   revalidatePath("/dashboard");
   revalidatePath(`/clientes/${payment.clientId}`);

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Wallet, Plus } from "lucide-react";
+import { Wallet, Plus, Repeat } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { PaymentStatus, type Prisma } from "@prisma/client";
@@ -105,6 +105,11 @@ export default async function CobrosPage({
                     {p.client.companyName ?? p.client.name}
                   </Link>
                   <Badge variant={PAYMENT_STATUS_BADGE[p.status]}>{PAYMENT_STATUS_LABEL[p.status]}</Badge>
+                  {p.isRecurring && (
+                    <Badge variant="accent" className="gap-1">
+                      <Repeat className="size-3" /> Mensual
+                    </Badge>
+                  )}
                 </div>
                 <p className="text-sm text-muted">{p.service ?? "Servicio"}</p>
                 <div className="mt-1 flex flex-wrap gap-x-3 text-xs text-muted">

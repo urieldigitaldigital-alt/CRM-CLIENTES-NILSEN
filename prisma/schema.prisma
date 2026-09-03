@@ -49,6 +49,7 @@ enum ActivityType {
   REUNION_CREADA
   PAGO_REGISTRADO
   PAGO_COBRADO
+  PAGO_RECURRENTE_GENERADO
   NOTA_AGREGADA
 }
 
@@ -224,6 +225,14 @@ model Payment {
   status          PaymentStatus @default(PENDIENTE)
   paymentMethod   String?
   notes           String?
+
+  // Recurring monthly billing: when this payment is marked PAGADO, a new
+  // Payment is auto-generated one month out with the same amount/service,
+  // so "pago hoy" alone sets up the ongoing reminder cycle.
+  isRecurring       Boolean   @default(false)
+  recurringParentId String?
+  recurringParent   Payment?  @relation("PaymentRecurrence", fields: [recurringParentId], references: [id], onDelete: SetNull)
+  recurringChildren Payment[] @relation("PaymentRecurrence")
 
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt

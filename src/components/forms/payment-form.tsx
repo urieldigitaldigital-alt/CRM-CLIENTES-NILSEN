@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import { ReminderPicker } from "@/components/forms/reminder-picker";
@@ -14,6 +15,7 @@ import { PAYMENT_STATUS_LABEL, PAYMENT_REMINDER_OPTIONS } from "@/lib/constants"
 import { PaymentStatus } from "@prisma/client";
 import type { ClientOption } from "@/components/forms/task-form";
 import { Spinner } from "@/components/ui/spinner";
+import { Repeat } from "lucide-react";
 
 type PaymentDefaults = {
   id?: string;
@@ -26,6 +28,7 @@ type PaymentDefaults = {
   paymentMethod?: string | null;
   notes?: string | null;
   reminderOffsets?: string[];
+  isRecurring?: boolean;
 };
 
 function toDateInputValue(value?: Date | string | null) {
@@ -117,6 +120,19 @@ export function PaymentForm({
           <Label htmlFor="notes">Notas</Label>
           <Textarea id="notes" name="notes" defaultValue={defaults?.notes ?? ""} className="mt-1.5" rows={2} />
         </div>
+      </div>
+
+      <div className="flex items-center justify-between gap-4 rounded-lg border border-border p-3">
+        <div className="flex items-start gap-2.5">
+          <Repeat className="mt-0.5 size-4 shrink-0 text-accent" />
+          <div>
+            <p className="text-sm font-medium">Cobro recurrente mensual</p>
+            <p className="text-xs text-muted">
+              Al marcarlo como pagado, se crea automáticamente el cobro del mes siguiente con el mismo importe y los mismos recordatorios.
+            </p>
+          </div>
+        </div>
+        <Switch name="isRecurring" defaultChecked={defaults?.isRecurring} />
       </div>
 
       <ReminderPicker options={PAYMENT_REMINDER_OPTIONS} defaultValues={defaults?.reminderOffsets} />
