@@ -1,0 +1,290 @@
+// Prisma schema — CRM / Ops platform for a marketing & automation agency.
+// SQLite for the prototype; swap `provider` + DATABASE_URL to "postgresql" (e.g. Supabase) later.
+// Nothing in the app talks to raw SQL, so that swap needs no code changes.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Enums ----------
+
+enum ClientStatus {
+  PROSPECTO
+  CERRADO
+  ACTIVO
+  PAUSADO
+  FINALIZADO
+}
+
+enum Priority {
+  BAJA
+  MEDIA
+  ALTA
+  URGENTE
+}
+
+enum TaskStatus {
+  PENDIENTE
+  EN_PROGRESO
+  COMPLETADA
+}
+
+enum PaymentStatus {
+  PENDIENTE
+  PAGADO
+  VENCIDO
+}
+
+enum ActivityType {
+  CLIENTE_CREADO
+  CLIENTE_ACTUALIZADO
+  CLIENTE_CERRADO
+  TAREA_CREADA
+  TAREA_COMPLETADA
+  REUNION_CREADA
+  PAGO_REGISTRADO
+  PAGO_COBRADO
+  NOTA_AGREGADA
+}
+
+enum ReminderTargetType {
+  TASK
+  MEETING
+  PAYMENT
+}
+
+enum NotificationType {
+  TASK
+  MEETING
+  PAYMENT_UPCOMING
+  PAYMENT_OVERDUE
+  GENERAL
+}
+
+// ---------- Core entities ----------
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  timezone  String   @default("America/Argentina/Buenos_Aires")
+  dateFormat String  @default("DD/MM/YYYY")
+  theme     String   @default("system") // light | dark | system
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  notificationPrefs   NotificationPreference?
+  pushSubscriptions   PushSubscription[]
+  clients             Client[]
+  tasks               Task[]
+  meetings            Meeting[]
+  payments            Payment[]
+  notifications       Notification[]
+  activityLogs        ActivityLog[]
+  notes               Note[]
+}
+
+model NotificationPreference {
+  id                    String  @id @default(cuid())
+  userId                String  @unique
+  user                  User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pushEnabled           Boolean @default(true)
+  taskReminders         Boolean @default(true)
+  meetingReminders      Boolean @default(true)
+  paymentReminders      Boolean @default(true)
+  defaultTaskReminder   String  @default("PT3H") // ISO 8601 duration used as default offset
+  defaultMeetingReminder String @default("PT2H")
+  defaultPaymentReminder String @default("P1D")
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userAgent String?
+  createdAt DateTime @default(now())
+}
+
+model Client {
+  id               String       @id @default(cuid())
+  userId           String
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name             String
+  companyName      String?
+  whatsapp         String?
+  email            String?
+  instagram        String?
+  website          String?
+
+  service          String?
+  price            Float?
+  paymentMethod    String?
+  nextPaymentDate  DateTime?
+
+  status           ClientStatus @default(PROSPECTO)
+  closedAt         DateTime?
+  startDate        DateTime?
+
+  notes            String?
+
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  tasks            Task[]
+  meetings         Meeting[]
+  payments         Payment[]
+  activityLogs     ActivityLog[]
+  clientNotes      Note[]
+
+  // Future: leads/pipeline stage, source, owner, tags — added without breaking this model.
+
+  @@index([userId, status])
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime @default(now())
+
+  @@index([clientId])
+}
+
+model Task {
+  id           String     @id @default(cuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientId     String?
+  client       Client?    @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  title        String
+  description  String?
+  date         DateTime   // date + time of the task
+  priority     Priority   @default(MEDIA)
+  status       TaskStatus @default(PENDIENTE)
+
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  reminders    Reminder[]
+  activityLogs ActivityLog[]
+
+  @@index([userId, date])
+  @@index([clientId])
+}
+
+model Meeting {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientId     String?
+  client       Client?   @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  title        String
+  date         DateTime
+  durationMin  Int       @default(30)
+  meetingLink  String?
+  notes        String?
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  reminders    Reminder[]
+  activityLogs ActivityLog[]
+
+  @@index([userId, date])
+  @@index([clientId])
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientId        String
+  client          Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  service         String?
+  amount          Float
+  contractedDate  DateTime?
+  dueDate         DateTime
+  paidDate        DateTime?
+  status          PaymentStatus @default(PENDIENTE)
+  paymentMethod   String?
+  notes           String?
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  reminders       Reminder[]
+  activityLogs    ActivityLog[]
+
+  @@index([userId, status, dueDate])
+  @@index([clientId])
+}
+
+// One row per configured reminder offset (a task/meeting/payment can have several).
+model Reminder {
+  id          String             @id @default(cuid())
+  targetType  ReminderTargetType
+  taskId      String?
+  task        Task?              @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  meetingId   String?
+  meeting     Meeting?           @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  paymentId   String?
+  payment     Payment?           @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  offsetLabel String             // e.g. "3h", "1d", "15m" — human label
+  remindAt    DateTime           // computed absolute timestamp, indexed for the cron sweep
+  sentAt      DateTime?
+
+  createdAt   DateTime           @default(now())
+
+  @@index([remindAt, sentAt])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  body      String
+  link      String?          // e.g. /clientes/{id} to deep-link on click
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([userId, read])
+}
+
+model ActivityLog {
+  id        String       @id @default(cuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientId  String?
+  client    Client?      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  taskId    String?
+  task      Task?        @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  meetingId String?
+  meeting   Meeting?     @relation(fields: [meetingId], references: [id], onDelete: SetNull)
+  paymentId String?
+  payment   Payment?     @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+
+  type      ActivityType
+  message   String
+  createdAt DateTime     @default(now())
+
+  @@index([clientId, createdAt])
+}
