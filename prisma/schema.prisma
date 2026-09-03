@@ -1,14 +1,16 @@
 // Prisma schema — CRM / Ops platform for a marketing & automation agency.
-// SQLite for the prototype; swap `provider` + DATABASE_URL to "postgresql" (e.g. Supabase) later.
-// Nothing in the app talks to raw SQL, so that swap needs no code changes.
+// Postgres via Supabase. DATABASE_URL is the pooled connection (app runtime,
+// pgbouncer transaction mode); DIRECT_URL bypasses the pooler for migrations,
+// which need a direct session (pgbouncer can't run DDL reliably).
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ---------- Enums ----------

@@ -11,6 +11,12 @@ export default defineConfig({
   },
   engine: "classic",
   datasource: {
+    // Pooled (pgbouncer transaction mode) — fine for the app at runtime.
     url: env("DATABASE_URL"),
+    // Unpooled — required for migrate/db push, which need a session-level
+    // advisory lock the transaction pooler can't hold. Omitting this here
+    // silently discards schema.prisma's own directUrl and makes migrate/push
+    // hang against the pooler instead of failing fast.
+    directUrl: env("DIRECT_URL"),
   },
 });
