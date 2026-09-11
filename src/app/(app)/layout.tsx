@@ -13,7 +13,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header />
-        <main className="flex-1 px-4 pb-20 pt-5 sm:px-6 sm:pb-8">{children}</main>
+        <main className="flex-1 px-4 pt-5 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:px-6 sm:pb-8">{children}</main>
       </div>
       <MobileNav />
     </div>

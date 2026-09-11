@@ -20,7 +20,7 @@ export async function Header() {
   ]);
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-surface/90 px-4 backdrop-blur sm:px-6">
+    <header className="sticky top-0 z-30 flex min-h-16 items-center gap-3 border-b border-border bg-surface/90 px-4 pt-[env(safe-area-inset-top)] backdrop-blur sm:px-6">
       <MobileMenu />
       <div className="flex-1" />
       <QuickCreate clients={clients} />

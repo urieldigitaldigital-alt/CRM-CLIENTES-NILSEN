@@ -28,11 +28,16 @@ function DialogContent({
       <DialogOverlay />
       <DialogPrimitive.Content
         className={cn(
-          "fixed left-1/2 top-1/2 z-50 grid w-full max-w-lg gap-4 rounded-xl border border-border bg-surface p-6 shadow-xl max-h-[85vh] overflow-y-auto scrollbar-thin animate-dialog-in",
+          // Mobile: bottom sheet — pinned to the bottom edge, rounded top only, slides up.
+          "fixed inset-x-0 bottom-0 z-50 grid w-full gap-4 rounded-t-2xl border border-border bg-surface px-6 pt-6 shadow-xl max-h-[90vh] overflow-y-auto scrollbar-thin animate-sheet-in",
+          "pb-[calc(1.5rem+env(safe-area-inset-bottom))]",
+          // Desktop (sm+): centered floating modal, all corners rounded, scale+fade in.
+          "sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:max-w-lg sm:rounded-2xl sm:pb-6 sm:max-h-[85vh] sm:animate-dialog-in",
           className
         )}
         {...props}
       >
+        <div className="mx-auto -mt-2 mb-1 h-1.5 w-10 shrink-0 rounded-full bg-border sm:hidden" aria-hidden />
         {children}
         <DialogPrimitive.Close className="absolute right-4 top-4 rounded-md p-1 text-muted opacity-70 transition-opacity hover:opacity-100 hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
           <X className="size-4" />
