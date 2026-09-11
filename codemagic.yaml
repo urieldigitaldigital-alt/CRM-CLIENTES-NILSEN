@@ -1,0 +1,57 @@
+workflows:
+  android-release:
+    name: Android Release (Play Store)
+    max_build_duration: 60
+    instance_type: linux_x2
+    environment:
+      groups:
+        - android_signing # define in Codemagic UI once you have a keystore
+      vars:
+        PACKAGE_NAME: "com.operaciones.crm"
+      node: 20
+    scripts:
+      - name: Install npm dependencies
+        script: npm ci
+      - name: Sync Capacitor Android
+        script: npx cap sync android
+      - name: Build release AAB
+        script: |
+          cd android
+          ./gradlew bundleRelease
+    artifacts:
+      - android/app/build/outputs/**/*.aab
+    publishing:
+      email:
+        recipients:
+          - urielbarboza2020@gmail.com
+
+  ios-release:
+    name: iOS Release (App Store)
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: operaciones_asc # create this integration in Codemagic UI once you have an Apple Developer account
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.operaciones.crm
+      vars:
+        XCODE_WORKSPACE: "ios/App/App.xcodeproj"
+        XCODE_SCHEME: "App"
+      node: 20
+    scripts:
+      - name: Install npm dependencies
+        script: npm ci
+      - name: Sync Capacitor iOS
+        script: npx cap sync ios
+      - name: Build ipa for App Store
+        script: |
+          xcode-project build-ipa \
+            --project "$XCODE_WORKSPACE" \
+            --scheme "$XCODE_SCHEME"
+    artifacts:
+      - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
