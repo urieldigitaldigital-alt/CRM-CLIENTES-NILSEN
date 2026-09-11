@@ -26,10 +26,20 @@ export const metadata: Metadata = {
   title: "Operaciones",
   description: "CRM y gestor de operaciones para agencias de marketing y automatizaciones.",
   manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "48x48", type: "image/x-icon" },
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "Operaciones",
+  },
+  other: {
+    "apple-mobile-web-app-capable": "yes",
   },
 };
 
