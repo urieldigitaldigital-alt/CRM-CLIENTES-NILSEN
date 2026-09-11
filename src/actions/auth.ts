@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { createSession, destroySession, hashPassword, verifyPassword } from "@/lib/auth";
+import { createCheckoutSessionUrl } from "@/lib/stripe";
 
 export type LoginState = { error?: string } | undefined;
 
@@ -68,7 +69,8 @@ export async function registerAction(
   });
 
   await createSession(user.id);
-  redirect("/dashboard");
+  const checkoutUrl = await createCheckoutSessionUrl(user);
+  redirect(checkoutUrl);
 }
 
 export async function logoutAction() {

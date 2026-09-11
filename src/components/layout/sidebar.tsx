@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Sparkles } from "lucide-react";
 import { NAV_ITEMS } from "@/components/layout/nav-items";
 import { cn } from "@/lib/utils";
 
@@ -12,11 +12,11 @@ export function Sidebar() {
   return (
     <aside className="hidden md:flex md:w-60 md:flex-col md:border-r md:border-border md:bg-surface">
       <div className="flex h-16 items-center gap-2 px-5">
-        <div className="flex size-8 items-center justify-center rounded-lg bg-accent text-accent-foreground">
-          <Sparkles className="size-4" />
+        <div className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-lg">
+          <Image src="/icons/icon-192.png" alt="" width={32} height={32} />
         </div>
         <span className="font-display text-[15px] font-semibold tracking-tight">
-          Centro de Operaciones
+          Operaciones
         </span>
       </div>
 

@@ -7,6 +7,9 @@ import { Header } from "@/components/layout/header";
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
+  if (user.subscriptionStatus !== "ACTIVE" && user.subscriptionStatus !== "EXEMPT") {
+    redirect("/suscripcion");
+  }
 
   return (
     <div className="flex min-h-screen">

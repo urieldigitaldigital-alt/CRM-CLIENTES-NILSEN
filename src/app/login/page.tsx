@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
+import Image from "next/image";
 import { getCurrentUser } from "@/lib/auth";
 import { LoginForm } from "@/components/forms/login-form";
 
@@ -25,11 +25,11 @@ export default async function LoginPage({
       />
       <div className="relative w-full max-w-sm animate-rise-in">
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="mb-4 flex size-12 items-center justify-center rounded-xl bg-accent text-accent-foreground shadow-lg shadow-accent/20">
-            <Sparkles className="size-6" />
+          <div className="mb-4 flex size-14 items-center justify-center overflow-hidden rounded-xl shadow-lg shadow-accent/20">
+            <Image src="/icons/icon-192.png" alt="" width={56} height={56} />
           </div>
           <h1 className="font-display text-xl font-semibold tracking-tight">
-            Centro de Operaciones
+            Operaciones
           </h1>
           <p className="mt-1 text-sm text-muted">
             Iniciá sesión para ver tu día.

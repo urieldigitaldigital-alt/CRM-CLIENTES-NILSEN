@@ -23,7 +23,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Centro de Operaciones",
+  title: "Operaciones",
   description: "CRM y gestor de operaciones para agencias de marketing y automatizaciones.",
   manifest: "/manifest.json",
   appleWebApp: {

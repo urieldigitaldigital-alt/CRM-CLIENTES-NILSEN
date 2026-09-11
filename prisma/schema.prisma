@@ -69,6 +69,14 @@ enum NotificationType {
   GENERAL
 }
 
+enum SubscriptionStatus {
+  EXEMPT // pre-existing accounts, grandfathered in before billing launched
+  INCOMPLETE // registered, checkout not finished yet
+  ACTIVE
+  PAST_DUE
+  CANCELED
+}
+
 // ---------- Core entities ----------
 
 model User {
@@ -81,6 +89,10 @@ model User {
   theme     String   @default("system") // light | dark | system
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  subscriptionStatus   SubscriptionStatus @default(INCOMPLETE)
+  stripeCustomerId     String?            @unique
+  stripeSubscriptionId String?            @unique
 
   notificationPrefs   NotificationPreference?
   pushSubscriptions   PushSubscription[]
