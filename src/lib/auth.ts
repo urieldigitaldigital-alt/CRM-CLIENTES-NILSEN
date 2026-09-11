@@ -1,6 +1,7 @@
 import "server-only";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 
@@ -64,5 +65,14 @@ export async function getCurrentUser() {
 export async function requireUser() {
   const user = await getCurrentUser();
   if (!user) throw new Error("No autenticado");
+  return user;
+}
+
+/** Like requireUser, but sends non-paying accounts to the paywall before rendering the page. */
+export async function requireActiveUser() {
+  const user = await requireUser();
+  if (user.subscriptionStatus !== "ACTIVE" && user.subscriptionStatus !== "EXEMPT") {
+    redirect("/suscripcion");
+  }
   return user;
 }

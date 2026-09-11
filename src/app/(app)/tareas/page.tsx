@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { CheckSquare, Plus } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { requireUser } from "@/lib/auth";
+import { requireActiveUser } from "@/lib/auth";
 import { TaskStatus, type Prisma } from "@prisma/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -26,7 +26,7 @@ export default async function TareasPage({
 }: {
   searchParams: Promise<{ status?: string }>;
 }) {
-  const user = await requireUser();
+  const user = await requireActiveUser();
   const { status } = await searchParams;
 
   const where: Prisma.TaskWhereInput = {

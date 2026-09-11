@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
-import { requireUser } from "@/lib/auth";
+import { requireActiveUser } from "@/lib/auth";
 import { getCalendarEvents } from "@/lib/calendar-data";
 import {
   getDayRangeForYMD,
@@ -42,7 +42,7 @@ export default async function CalendarioPage({
 }: {
   searchParams: Promise<{ view?: string; date?: string }>;
 }) {
-  const user = await requireUser();
+  const user = await requireActiveUser();
   const { view: rawView, date: rawDate } = await searchParams;
   const view: ViewType = rawView === "day" || rawView === "week" ? rawView : "month";
   const { y, m, d } = parseDateParam(rawDate);

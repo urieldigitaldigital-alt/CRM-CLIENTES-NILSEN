@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Calendar as CalendarIcon, Plus, Link as LinkIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { requireUser } from "@/lib/auth";
+import { requireActiveUser } from "@/lib/auth";
 import type { Prisma } from "@prisma/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,7 +12,7 @@ import { MeetingRowActions } from "@/components/reuniones/meeting-row-actions";
 import { formatDateTime, formatRelativeDay } from "@/lib/format";
 
 export default async function ReunionesPage() {
-  const user = await requireUser();
+  const user = await requireActiveUser();
 
   const [meetings, clients] = await Promise.all([
     prisma.meeting.findMany({

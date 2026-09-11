@@ -1,4 +1,4 @@
-import { requireUser } from "@/lib/auth";
+import { requireActiveUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ProfileForm } from "@/components/configuracion/profile-form";
@@ -7,7 +7,7 @@ import { ThemeSelector } from "@/components/configuracion/theme-selector";
 import { PushSubscribeCard } from "@/components/configuracion/push-subscribe-card";
 
 export default async function ConfiguracionPage() {
-  const user = await requireUser();
+  const user = await requireActiveUser();
   const prefs = await prisma.notificationPreference.upsert({
     where: { userId: user.id },
     update: {},

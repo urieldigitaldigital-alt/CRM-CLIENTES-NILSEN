@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Wallet, Plus, Repeat } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { requireUser } from "@/lib/auth";
+import { requireActiveUser } from "@/lib/auth";
 import { PaymentStatus, type Prisma } from "@prisma/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -26,7 +26,7 @@ export default async function CobrosPage({
 }: {
   searchParams: Promise<{ status?: string }>;
 }) {
-  const user = await requireUser();
+  const user = await requireActiveUser();
   const { status } = await searchParams;
 
   const where: Prisma.PaymentWhereInput = {

@@ -17,7 +17,7 @@ import {
   Repeat,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { requireUser } from "@/lib/auth";
+import { requireActiveUser } from "@/lib/auth";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -57,7 +57,7 @@ const ACTIVITY_ICON: Record<string, typeof ActivityIcon> = {
 };
 
 export default async function ClientDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const user = await requireUser();
+  const user = await requireActiveUser();
   const { id } = await params;
 
   const client = await prisma.client.findFirst({

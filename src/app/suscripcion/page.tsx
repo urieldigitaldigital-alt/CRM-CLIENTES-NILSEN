@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { logoutAction } from "@/actions/auth";
 import { startCheckoutAction, openBillingPortalAction } from "@/actions/billing";
@@ -39,7 +40,7 @@ export default async function SuscripcionPage() {
             <CardDescription>
               {isPastDue
                 ? "Actualizá tu método de pago para seguir usando Operaciones."
-                : "USD 9 por mes. Cancelás cuando quieras."}
+                : "Necesitás una suscripción activa para usar esta sección. USD 9 por mes, cancelás cuando quieras."}
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
@@ -56,6 +57,9 @@ export default async function SuscripcionPage() {
                 </Button>
               </form>
             )}
+            <Button asChild variant="ghost" className="w-full">
+              <Link href="/dashboard">Volver al panel</Link>
+            </Button>
             <form action={logoutAction}>
               <Button type="submit" variant="ghost" className="w-full">
                 Cerrar sesión

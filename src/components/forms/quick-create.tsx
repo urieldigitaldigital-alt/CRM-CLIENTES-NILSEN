@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Plus, Users, CheckSquare, Wallet, Calendar, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -25,7 +26,8 @@ const TITLES: Record<QuickCreateType, string> = {
   cobro: "Nuevo cobro",
 };
 
-export function QuickCreate({ clients }: { clients: ClientOption[] }) {
+export function QuickCreate({ clients, locked = false }: { clients: ClientOption[]; locked?: boolean }) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<QuickCreateType | null>(null);
 
@@ -39,9 +41,17 @@ export function QuickCreate({ clients }: { clients: ClientOption[] }) {
     setSelected(null);
   }
 
+  function handleTriggerClick() {
+    if (locked) {
+      router.push("/suscripcion");
+      return;
+    }
+    setOpen(true);
+  }
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <Button onClick={() => setOpen(true)} size="sm" className="gap-1.5">
+      <Button onClick={handleTriggerClick} size="sm" className="gap-1.5">
         <Plus className="size-4" />
         <span className="hidden sm:inline">Crear</span>
       </Button>
