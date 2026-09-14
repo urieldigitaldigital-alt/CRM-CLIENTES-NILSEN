@@ -94,6 +94,12 @@ model User {
   stripeCustomerId     String?            @unique
   stripeSubscriptionId String?            @unique
 
+  emailVerifiedAt              DateTime?
+  emailVerificationToken       String?   @unique
+  emailVerificationExpiresAt   DateTime?
+  passwordResetToken           String?   @unique
+  passwordResetExpiresAt       DateTime?
+
   notificationPrefs   NotificationPreference?
   pushSubscriptions   PushSubscription[]
   clients             Client[]
@@ -136,6 +142,7 @@ model Client {
 
   name             String
   companyName      String?
+  photoUrl         String?
   whatsapp         String?
   email            String?
   instagram        String?

@@ -47,8 +47,10 @@ export default async function LoginPage({
           </Link>
         </p>
 
-        <p className="mt-2 text-center text-xs text-muted">
-          Cuenta de demostración precargada · demo@agencia.com / demo1234
+        <p className="mt-4 text-center text-xs text-muted">
+          <Link href="/instalar" className="text-accent hover:underline">
+            ¿Cómo instalo esto en mi celular?
+          </Link>
         </p>
       </div>
     </div>

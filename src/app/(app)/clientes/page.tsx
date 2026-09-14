@@ -92,7 +92,7 @@ export default async function ClientesPage({
                   <TableRow key={c.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <ClientAvatar name={c.companyName ?? c.name} />
+                        <ClientAvatar name={c.companyName ?? c.name} photoUrl={c.photoUrl} />
                         <div>
                           <Link href={`/clientes/${c.id}`} className="font-medium hover:text-accent">
                             {c.companyName ?? c.name}

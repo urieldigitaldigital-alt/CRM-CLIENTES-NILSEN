@@ -86,7 +86,11 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
         <CardContent className="pt-5">
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
             <div className="flex items-start gap-4">
-              <ClientAvatar name={client.companyName ?? client.name} className="mt-0.5 size-12 text-base" />
+              <ClientAvatar
+                name={client.companyName ?? client.name}
+                photoUrl={client.photoUrl}
+                className="mt-0.5 size-12 text-base"
+              />
               <div>
                 <div className="flex flex-wrap items-center gap-2">
                   <h1 className="font-display text-xl font-semibold tracking-tight">

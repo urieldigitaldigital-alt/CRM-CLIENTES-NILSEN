@@ -77,3 +77,28 @@ export async function requireActiveUser() {
   }
   return user;
 }
+
+/**
+ * Confirms a pending email-verification token: marks the account verified,
+ * clears the token, and starts a session. Called directly from the
+ * /verificar-email/[token] server component (not a form action).
+ */
+export async function verifyEmailToken(token: string): Promise<"ok" | "invalid" | "expired"> {
+  const user = await prisma.user.findUnique({ where: { emailVerificationToken: token } });
+  if (!user) return "invalid";
+  if (!user.emailVerificationExpiresAt || user.emailVerificationExpiresAt < new Date()) {
+    return "expired";
+  }
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      emailVerifiedAt: new Date(),
+      emailVerificationToken: null,
+      emailVerificationExpiresAt: null,
+    },
+  });
+
+  await createSession(user.id);
+  return "ok";
+}

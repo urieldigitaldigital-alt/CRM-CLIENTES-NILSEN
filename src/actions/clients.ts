@@ -10,6 +10,7 @@ import { parseDateOnly } from "@/lib/format";
 const clientSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio"),
   companyName: z.string().optional(),
+  photoUrl: z.string().optional(),
   whatsapp: z.string().optional(),
   email: z.string().optional(),
   instagram: z.string().optional(),
@@ -50,6 +51,7 @@ export async function createClient(
       userId: user.id,
       name: data.name,
       companyName: data.companyName || null,
+      photoUrl: data.photoUrl || null,
       whatsapp: data.whatsapp || null,
       email: data.email || null,
       instagram: data.instagram || null,
@@ -99,6 +101,7 @@ export async function updateClient(
     data: {
       name: data.name,
       companyName: data.companyName || null,
+      photoUrl: data.photoUrl || null,
       whatsapp: data.whatsapp || null,
       email: data.email || null,
       instagram: data.instagram || null,

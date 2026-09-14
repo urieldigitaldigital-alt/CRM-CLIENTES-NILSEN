@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState, type ChangeEvent } from "react";
 import { toast } from "sonner";
+import { Camera, X } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,11 +13,13 @@ import { createClient, updateClient, type ClientFormState } from "@/actions/clie
 import { CLIENT_STATUS_LABEL } from "@/lib/constants";
 import { ClientStatus } from "@prisma/client";
 import { Spinner } from "@/components/ui/spinner";
+import { compressImageToDataUrl } from "@/lib/image";
 
 type ClientDefaults = {
   id?: string;
   name?: string;
   companyName?: string | null;
+  photoUrl?: string | null;
   whatsapp?: string | null;
   email?: string | null;
   instagram?: string | null;
@@ -51,6 +54,8 @@ export function ClientForm({
     undefined
   );
   const wasPending = useRef(false);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(defaults?.photoUrl ?? null);
+  const [photoError, setPhotoError] = useState<string | null>(null);
 
   useEffect(() => {
     if (wasPending.current && !isPending && !state?.error) {
@@ -60,8 +65,59 @@ export function ClientForm({
     wasPending.current = isPending;
   }, [isPending, state, isEdit, onSuccess]);
 
+  async function handlePhotoChange(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPhotoError(null);
+    try {
+      const dataUrl = await compressImageToDataUrl(file);
+      setPhotoUrl(dataUrl);
+    } catch {
+      setPhotoError("No pudimos procesar esa imagen. Probá con otra.");
+    }
+  }
+
   return (
     <form action={formAction} className="space-y-4">
+      <input type="hidden" name="photoUrl" value={photoUrl ?? ""} />
+
+      <div className="flex items-center gap-4">
+        <div className="relative">
+          {photoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element -- data: URI preview, not an optimizable remote image
+            <img src={photoUrl} alt="" className="size-16 rounded-full object-cover" />
+          ) : (
+            <div className="flex size-16 items-center justify-center rounded-full bg-surface-2 text-muted">
+              <Camera className="size-6" />
+            </div>
+          )}
+          {photoUrl && (
+            <button
+              type="button"
+              onClick={() => setPhotoUrl(null)}
+              className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-danger text-white"
+              aria-label="Quitar foto"
+            >
+              <X className="size-3" />
+            </button>
+          )}
+        </div>
+        <div>
+          <Label htmlFor="photo" className="cursor-pointer text-sm font-medium text-accent hover:underline">
+            {photoUrl ? "Cambiar foto" : "Agregar foto del negocio"}
+          </Label>
+          <input
+            id="photo"
+            type="file"
+            accept="image/*"
+            onChange={handlePhotoChange}
+            className="hidden"
+          />
+          <p className="mt-0.5 text-xs text-muted">Opcional. Ayuda a reconocer al cliente de un vistazo.</p>
+          {photoError && <p className="mt-1 text-xs text-danger">{photoError}</p>}
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 gap-3">
         <div className="col-span-2 sm:col-span-1">
           <Label htmlFor="name">Nombre *</Label>

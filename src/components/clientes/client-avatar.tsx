@@ -24,7 +24,26 @@ function initialsFor(name: string) {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-export function ClientAvatar({ name, className }: { name: string; className?: string }) {
+export function ClientAvatar({
+  name,
+  photoUrl,
+  className,
+}: {
+  name: string;
+  photoUrl?: string | null;
+  className?: string;
+}) {
+  if (photoUrl) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- data: URIs can't go through next/image's optimizer
+      <img
+        src={photoUrl}
+        alt=""
+        className={cn("size-9 shrink-0 rounded-full object-cover", className)}
+      />
+    );
+  }
+
   const palette = PALETTE[hashString(name) % PALETTE.length];
   return (
     <span

@@ -1,10 +1,13 @@
+import Link from "next/link";
 import { requireActiveUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { ProfileForm } from "@/components/configuracion/profile-form";
 import { NotificationPrefsForm } from "@/components/configuracion/notification-prefs-form";
 import { ThemeSelector } from "@/components/configuracion/theme-selector";
 import { PushSubscribeCard } from "@/components/configuracion/push-subscribe-card";
+import { CancelSubscriptionCard } from "@/components/configuracion/cancel-subscription-card";
 
 export default async function ConfiguracionPage() {
   const user = await requireActiveUser();
@@ -40,6 +43,20 @@ export default async function ConfiguracionPage() {
           <ThemeSelector />
         </CardContent>
       </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Instalar en el celular</CardTitle>
+          <CardDescription>Agregá Operaciones a la pantalla de inicio de tu teléfono.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button asChild variant="secondary">
+            <Link href="/instalar">Ver instrucciones</Link>
+          </Button>
+        </CardContent>
+      </Card>
+
+      <CancelSubscriptionCard status={user.subscriptionStatus} />
 
       <PushSubscribeCard />
 
