@@ -24,9 +24,9 @@ export default function PrivacidadPage() {
           dentro de la aplicación.
         </li>
         <li>
-          <strong>Datos de facturación:</strong> para las cuentas con suscripción paga, Stripe procesa el
-          pago y nos comparte un identificador de cliente/suscripción. Nunca vemos ni almacenamos el
-          número de tu tarjeta.
+          <strong>Datos de facturación:</strong> para las cuentas con suscripción paga, Mercado Pago procesa
+          el pago y nos comparte un identificador de suscripción. Nunca vemos ni almacenamos el número de
+          tu tarjeta.
         </li>
         <li>
           <strong>Notificaciones push:</strong> si las activás, guardamos el endpoint de suscripción de tu
@@ -44,8 +44,8 @@ export default function PrivacidadPage() {
       <h2 className="mt-8 font-display text-lg font-semibold">Dónde se almacenan los datos</h2>
       <p className="mt-3">
         La base de datos está alojada en Supabase (PostgreSQL) y la aplicación se ejecuta en Vercel. Los
-        pagos se procesan a través de Stripe. Estos proveedores actúan como encargados del tratamiento de
-        datos bajo sus propias políticas de seguridad.
+        pagos se procesan a través de Mercado Pago. Estos proveedores actúan como encargados del
+        tratamiento de datos bajo sus propias políticas de seguridad.
       </p>
 
       <h2 className="mt-8 font-display text-lg font-semibold">Cookies</h2>

@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 // This wraps the live Next.js app in a native shell — the app is server-rendered
-// (auth, Postgres, Stripe webhooks) so it can't be statically exported into www/.
+// (auth, Postgres, payment webhooks) so it can't be statically exported into www/.
 // www/ only holds a placeholder shown for an instant before the WebView loads the
 // real server URL below.
 const config: CapacitorConfig = {

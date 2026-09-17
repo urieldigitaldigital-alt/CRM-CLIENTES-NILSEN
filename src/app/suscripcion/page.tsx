@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { logoutAction } from "@/actions/auth";
-import { startCheckoutAction, openBillingPortalAction } from "@/actions/billing";
+import { startCheckoutAction } from "@/actions/billing";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
@@ -39,24 +39,16 @@ export default async function SuscripcionPage() {
             <CardTitle>{isPastDue ? "Tu pago no se pudo procesar" : "Activá tu suscripción"}</CardTitle>
             <CardDescription>
               {isPastDue
-                ? "Actualizá tu método de pago para seguir usando Operaciones."
-                : "Necesitás una suscripción activa para usar esta sección. USD 9 por mes, cancelás cuando quieras."}
+                ? "Reactivá tu suscripción con Mercado Pago para seguir usando Operaciones."
+                : "Necesitás una suscripción activa para usar esta sección. Pagás con Mercado Pago, cancelás cuando quieras."}
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
-            {isPastDue ? (
-              <form action={openBillingPortalAction}>
-                <Button type="submit" className="w-full" size="lg">
-                  Actualizar método de pago
-                </Button>
-              </form>
-            ) : (
-              <form action={startCheckoutAction}>
-                <Button type="submit" className="w-full" size="lg">
-                  Suscribirme por 9 USD/mes
-                </Button>
-              </form>
-            )}
+            <form action={startCheckoutAction}>
+              <Button type="submit" className="w-full" size="lg">
+                {isPastDue ? "Reactivar mi suscripción" : "Suscribirme con Mercado Pago"}
+              </Button>
+            </form>
             <Button asChild variant="ghost" className="w-full">
               <Link href="/dashboard">Volver al panel</Link>
             </Button>
