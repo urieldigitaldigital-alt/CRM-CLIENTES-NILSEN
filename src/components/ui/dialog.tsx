@@ -32,7 +32,10 @@ function DialogContent({
           "fixed inset-x-0 bottom-0 z-50 grid w-full gap-4 rounded-t-2xl border border-border bg-surface px-6 pt-6 shadow-xl max-h-[90vh] overflow-y-auto scrollbar-thin animate-sheet-in",
           "pb-[calc(1.5rem+env(safe-area-inset-bottom))]",
           // Desktop (sm+): centered floating modal, all corners rounded, scale+fade in.
-          "sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:max-w-lg sm:rounded-2xl sm:pb-6 sm:max-h-[85vh] sm:animate-dialog-in",
+          // The translate is also set as a static base transform (not just inside the
+          // keyframes) so the dialog is still correctly centered even if the entrance
+          // animation doesn't run for some reason.
+          "sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:max-w-lg sm:rounded-2xl sm:pb-6 sm:max-h-[85vh] sm:animate-dialog-in",
           className
         )}
         {...props}
