@@ -8,6 +8,9 @@ import { NotificationPrefsForm } from "@/components/configuracion/notification-p
 import { ThemeSelector } from "@/components/configuracion/theme-selector";
 import { PushSubscribeCard } from "@/components/configuracion/push-subscribe-card";
 import { CancelSubscriptionCard } from "@/components/configuracion/cancel-subscription-card";
+import { ActivateUserCard } from "@/components/configuracion/activate-user-card";
+
+const OWNER_EMAIL = "urielbarboza2020@gmail.com";
 
 export default async function ConfiguracionPage() {
   const user = await requireActiveUser();
@@ -57,6 +60,8 @@ export default async function ConfiguracionPage() {
       </Card>
 
       <CancelSubscriptionCard status={user.subscriptionStatus} />
+
+      {user.email === OWNER_EMAIL && <ActivateUserCard />}
 
       <PushSubscribeCard />
 
