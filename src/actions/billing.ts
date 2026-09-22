@@ -4,22 +4,12 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
-import { cancelPreapproval } from "@/lib/mercadopago";
-
-// Points at a Mercado Pago "Plan de suscripción" checkout link (created in the
-// seller dashboard, not via API) — no Access Token required. It's a single
-// shared link, so payments aren't tied back to a user automatically; activate
-// the account manually once a payment comes in until the API-based checkout
-// (src/lib/mercadopago.ts createSubscriptionCheckoutUrl) is wired up.
-function getSubscriptionLink() {
-  const url = process.env.MERCADOPAGO_SUBSCRIPTION_LINK;
-  if (!url) throw new Error("MERCADOPAGO_SUBSCRIPTION_LINK no está configurado en .env");
-  return url;
-}
+import { createSubscriptionCheckoutUrl, cancelPreapproval } from "@/lib/mercadopago";
 
 export async function startCheckoutAction() {
-  await requireUser();
-  redirect(getSubscriptionLink());
+  const user = await requireUser();
+  const url = await createSubscriptionCheckoutUrl(user);
+  redirect(url);
 }
 
 /**
