@@ -9,7 +9,7 @@ import { cancelSubscriptionAction } from "@/actions/billing";
 import type { SubscriptionStatus } from "@prisma/client";
 
 const LABELS: Record<SubscriptionStatus, string> = {
-  ACTIVE: "Tu plan está activo — USD 9/mes.",
+  ACTIVE: "Tu plan está activo — $13.000/mes.",
   EXEMPT: "Tenés acceso de cortesía, sin suscripción para cancelar.",
   PAST_DUE: "Tu último pago no se pudo procesar.",
   CANCELED: "No tenés una suscripción activa.",

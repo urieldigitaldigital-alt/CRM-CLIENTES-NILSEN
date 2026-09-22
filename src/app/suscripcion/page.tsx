@@ -39,14 +39,14 @@ export default async function SuscripcionPage() {
             <CardTitle>{isPastDue ? "Tu pago no se pudo procesar" : "Activá tu suscripción"}</CardTitle>
             <CardDescription>
               {isPastDue
-                ? "Reactivá tu suscripción con Mercado Pago para seguir usando Operaciones."
-                : "Necesitás una suscripción activa para usar esta sección. Pagás con Mercado Pago, cancelás cuando quieras."}
+                ? "Reactivá tu suscripción para seguir usando Operaciones."
+                : "Necesitás una suscripción activa para usar esta sección. $13.000/mes, cancelás cuando quieras."}
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
             <form action={startCheckoutAction}>
               <Button type="submit" className="w-full" size="lg">
-                {isPastDue ? "Reactivar mi suscripción" : "Suscribirme con Mercado Pago"}
+                {isPastDue ? "Reactivar mi suscripción" : "Suscribirme"}
               </Button>
             </form>
             <Button asChild variant="ghost" className="w-full">
