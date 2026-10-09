@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireActiveUser } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import { ActivateUserCard } from "@/components/configuracion/activate-user-card"
 const OWNER_EMAIL = "urielbarboza2020@gmail.com";
 
 export default async function ConfiguracionPage() {
-  const user = await requireActiveUser();
+  const user = await requireUser();
   const prefs = await prisma.notificationPreference.upsert({
     where: { userId: user.id },
     update: {},

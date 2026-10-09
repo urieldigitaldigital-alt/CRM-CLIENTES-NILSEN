@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { requireUser } from "@/lib/auth";
+import { requireUser, requireActiveUser } from "@/lib/auth";
 import { ActivityType, ClientStatus } from "@prisma/client";
 import { parseDateOnly } from "@/lib/format";
 
@@ -39,7 +39,7 @@ export async function createClient(
   _prevState: ClientFormState,
   formData: FormData
 ): Promise<ClientFormState> {
-  const user = await requireUser();
+  const user = await requireActiveUser();
   const parsed = parseClientForm(formData);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Datos inválidos" };

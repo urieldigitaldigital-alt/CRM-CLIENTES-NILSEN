@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Check } from "lucide-react";
-import { getCurrentUser, isOnTrial } from "@/lib/auth";
+import { getCurrentUser, hasActiveAccess } from "@/lib/auth";
 import { logoutAction } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
 import { WhopCheckout } from "@/components/billing/whop-checkout";
@@ -18,7 +18,7 @@ const FEATURES = [
 export default async function SuscripcionPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
-  if (user.subscriptionStatus === "ACTIVE" || user.subscriptionStatus === "EXEMPT" || isOnTrial(user)) {
+  if (hasActiveAccess(user)) {
     redirect("/dashboard");
   }
 

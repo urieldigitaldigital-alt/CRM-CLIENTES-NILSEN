@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Users, CheckSquare, Calendar, Wallet, Banknote, UserCheck, ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { requireActiveUser } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { ClientStatus, TaskStatus, PaymentStatus } from "@prisma/client";
 import { getDayRangeBA, getRangeFromTodayBA } from "@/lib/dates";
 import { formatCurrency, formatDate } from "@/lib/format";
@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { PAYMENT_STATUS_BADGE, PAYMENT_STATUS_LABEL } from "@/lib/constants";
 
 export default async function DashboardPage() {
-  const user = await requireActiveUser();
+  const user = await requireUser();
   const today = getDayRangeBA(0);
   const tomorrow = getDayRangeBA(1);
   const next30 = getRangeFromTodayBA(30);

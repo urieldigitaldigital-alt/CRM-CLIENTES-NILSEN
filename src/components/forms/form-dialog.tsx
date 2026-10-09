@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, cloneElement, type ReactElement, type ReactNode } from "react";
+import { useState, cloneElement, type ReactElement, type MouseEvent } from "react";
+import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 
 export function FormDialog({
@@ -8,13 +9,25 @@ export function FormDialog({
   title,
   description,
   children,
+  locked = false,
 }: {
-  trigger: ReactNode;
+  trigger: ReactElement<{ onClick?: (e: MouseEvent) => void }>;
   title: string;
   description?: string;
   children: ReactElement<{ onSuccess?: () => void }>;
+  locked?: boolean;
 }) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
+
+  if (locked) {
+    return cloneElement(trigger, {
+      onClick: (e: MouseEvent) => {
+        e.preventDefault();
+        router.push("/suscripcion");
+      },
+    });
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

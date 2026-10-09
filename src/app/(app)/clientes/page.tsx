@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Users, Phone, Mail, ChevronRight, UserPlus } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { requireActiveUser } from "@/lib/auth";
+import { requireUser, hasActiveAccess } from "@/lib/auth";
 import { ClientStatus, type Prisma } from "@prisma/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +20,8 @@ export default async function ClientesPage({
 }: {
   searchParams: Promise<{ q?: string; status?: string }>;
 }) {
-  const user = await requireActiveUser();
+  const user = await requireUser();
+  const hasAccess = hasActiveAccess(user);
   const { q, status } = await searchParams;
 
   const where: Prisma.ClientWhereInput = {
@@ -58,6 +59,7 @@ export default async function ClientesPage({
             </Button>
           }
           title="Nuevo cliente"
+          locked={!hasAccess}
         >
           <ClientForm />
         </FormDialog>

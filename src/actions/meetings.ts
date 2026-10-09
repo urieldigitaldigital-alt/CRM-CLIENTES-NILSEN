@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { requireUser } from "@/lib/auth";
+import { requireUser, requireActiveUser } from "@/lib/auth";
 import { ActivityType, ReminderTargetType } from "@prisma/client";
 import { computeRemindAt } from "@/lib/reminders";
 import { fromDateTimeLocalValue } from "@/lib/format";
@@ -37,7 +37,7 @@ export async function createMeeting(
   _prevState: MeetingFormState,
   formData: FormData
 ): Promise<MeetingFormState> {
-  const user = await requireUser();
+  const user = await requireActiveUser();
   const raw = Object.fromEntries(formData.entries());
   const parsed = meetingSchema.safeParse(raw);
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Datos inválidos" };

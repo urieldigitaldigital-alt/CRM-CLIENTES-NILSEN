@@ -17,7 +17,7 @@ import {
   Repeat,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { requireActiveUser } from "@/lib/auth";
+import { requireUser, hasActiveAccess } from "@/lib/auth";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -57,7 +57,8 @@ const ACTIVITY_ICON: Record<string, typeof ActivityIcon> = {
 };
 
 export default async function ClientDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const user = await requireActiveUser();
+  const user = await requireUser();
+  const hasAccess = hasActiveAccess(user);
   const { id } = await params;
 
   const client = await prisma.client.findFirst({
@@ -161,6 +162,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                 </Button>
               }
               title="Nueva tarea"
+              locked={!hasAccess}
             >
               <TaskForm clients={[]} fixedClientId={client.id} />
             </FormDialog>
@@ -195,6 +197,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                 </Button>
               }
               title="Nuevo cobro"
+              locked={!hasAccess}
             >
               <PaymentForm clients={[]} fixedClientId={client.id} />
             </FormDialog>

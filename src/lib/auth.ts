@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import type { SubscriptionStatus } from "@prisma/client";
 
 const COOKIE_NAME = "crm_session";
 const SESSION_TTL = "30d";
@@ -78,12 +79,14 @@ export function trialHoursLeft(user: { trialEndsAt: Date | null }) {
   return Math.max(1, Math.ceil((user.trialEndsAt!.getTime() - Date.now()) / (60 * 60 * 1000)));
 }
 
+export function hasActiveAccess(user: { subscriptionStatus: SubscriptionStatus; trialEndsAt: Date | null }) {
+  return user.subscriptionStatus === "ACTIVE" || user.subscriptionStatus === "EXEMPT" || isOnTrial(user);
+}
+
 /** Like requireUser, but sends non-paying accounts to the paywall before rendering the page. */
 export async function requireActiveUser() {
   const user = await requireUser();
-  const hasAccess =
-    user.subscriptionStatus === "ACTIVE" || user.subscriptionStatus === "EXEMPT" || isOnTrial(user);
-  if (!hasAccess) {
+  if (!hasActiveAccess(user)) {
     redirect("/suscripcion");
   }
   return user;

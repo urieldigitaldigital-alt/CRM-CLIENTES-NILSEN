@@ -1,9 +1,9 @@
 import { prisma } from "@/lib/prisma";
-import { requireActiveUser } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { NotificationList } from "@/components/notificaciones/notification-list";
 
 export default async function NotificacionesPage() {
-  const user = await requireActiveUser();
+  const user = await requireUser();
   const notifications = await prisma.notification.findMany({
     where: { userId: user.id },
     orderBy: { createdAt: "desc" },
