@@ -82,6 +82,7 @@ export async function registerAction(
       password: await hashPassword(password),
       emailVerificationToken: token,
       emailVerificationExpiresAt: new Date(Date.now() + VERIFICATION_TTL_MS),
+      trialEndsAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
       notificationPrefs: { create: {} },
     },
   });

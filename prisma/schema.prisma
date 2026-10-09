@@ -91,6 +91,9 @@ model User {
   updatedAt DateTime @updatedAt
 
   subscriptionStatus   SubscriptionStatus @default(INCOMPLETE)
+  // Set at registration to now + 24h; grants access without a subscription
+  // until it passes. requireActiveUser() treats this like an active sub.
+  trialEndsAt DateTime?
   // Legacy: kept only so already-active subscribers from before each checkout
   // switch (Stripe, then Mercado Pago) can still be canceled/tracked.
   // Not used for new checkouts — see whopMembershipId below.

@@ -69,10 +69,21 @@ export async function requireUser() {
   return user;
 }
 
+export function isOnTrial(user: { trialEndsAt: Date | null }) {
+  return user.trialEndsAt !== null && user.trialEndsAt.getTime() > Date.now();
+}
+
+export function trialHoursLeft(user: { trialEndsAt: Date | null }) {
+  if (!isOnTrial(user)) return 0;
+  return Math.max(1, Math.ceil((user.trialEndsAt!.getTime() - Date.now()) / (60 * 60 * 1000)));
+}
+
 /** Like requireUser, but sends non-paying accounts to the paywall before rendering the page. */
 export async function requireActiveUser() {
   const user = await requireUser();
-  if (user.subscriptionStatus !== "ACTIVE" && user.subscriptionStatus !== "EXEMPT") {
+  const hasAccess =
+    user.subscriptionStatus === "ACTIVE" || user.subscriptionStatus === "EXEMPT" || isOnTrial(user);
+  if (!hasAccess) {
     redirect("/suscripcion");
   }
   return user;
