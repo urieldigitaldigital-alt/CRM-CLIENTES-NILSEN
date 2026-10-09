@@ -91,11 +91,13 @@ model User {
   updatedAt DateTime @updatedAt
 
   subscriptionStatus   SubscriptionStatus @default(INCOMPLETE)
-  // Legacy: kept only so already-active Stripe subscribers (from before the
-  // switch to Mercado Pago) can still be canceled/tracked. Not used for new checkouts.
+  // Legacy: kept only so already-active subscribers from before each checkout
+  // switch (Stripe, then Mercado Pago) can still be canceled/tracked.
+  // Not used for new checkouts — see whopMembershipId below.
   stripeCustomerId         String? @unique
   stripeSubscriptionId     String? @unique
   mercadoPagoPreapprovalId String? @unique
+  whopMembershipId         String? @unique
 
   emailVerifiedAt              DateTime?
   emailVerificationToken       String?   @unique
