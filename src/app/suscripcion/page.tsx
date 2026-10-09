@@ -63,7 +63,11 @@ export default async function SuscripcionPage() {
           </div>
 
           <div className="p-6">
-            <WhopCheckout userId={user.id} email={user.email} />
+            <WhopCheckout
+              userId={user.id}
+              email={user.email}
+              ctaLabel={isPastDue ? "Reactivar mi suscripción" : "Suscribirme"}
+            />
           </div>
         </div>
 
