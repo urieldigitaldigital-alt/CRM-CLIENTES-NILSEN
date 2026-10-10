@@ -1,4 +1,22 @@
-import type { ClientStatus, Priority, TaskStatus, PaymentStatus } from "@prisma/client";
+import type { ClientStatus, Priority, TaskStatus, PaymentStatus, SubscriptionStatus } from "@prisma/client";
+
+export const OWNER_EMAIL = "urielbarboza2020@gmail.com";
+
+export const SUBSCRIPTION_STATUS_LABEL: Record<SubscriptionStatus, string> = {
+  EXEMPT: "Exento",
+  INCOMPLETE: "Sin plan",
+  ACTIVE: "Activo",
+  PAST_DUE: "Pago vencido",
+  CANCELED: "Cancelado",
+};
+
+export const SUBSCRIPTION_STATUS_BADGE: Record<SubscriptionStatus, "default" | "accent" | "success" | "warning" | "danger" | "info"> = {
+  EXEMPT: "info",
+  INCOMPLETE: "default",
+  ACTIVE: "success",
+  PAST_DUE: "warning",
+  CANCELED: "danger",
+};
 
 export const CLIENT_STATUS_LABEL: Record<ClientStatus, string> = {
   PROSPECTO: "Prospecto",

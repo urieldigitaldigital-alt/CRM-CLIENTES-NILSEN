@@ -9,9 +9,10 @@ import { NAV_ITEMS } from "@/components/layout/nav-items";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/actions/auth";
 
-export function MobileMenu() {
+export function MobileMenu({ isOwner = false }: { isOwner?: boolean }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const items = NAV_ITEMS.filter((item) => !item.ownerOnly || isOwner);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -27,7 +28,7 @@ export function MobileMenu() {
           <DialogTitle>Menú</DialogTitle>
         </DialogHeader>
         <nav className="flex flex-col gap-0.5">
-          {NAV_ITEMS.map((item) => {
+          {items.map((item) => {
             const active = pathname === item.href || pathname.startsWith(item.href + "/");
             const Icon = item.icon;
             return (

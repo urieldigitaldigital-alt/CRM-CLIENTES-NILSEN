@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getCurrentUser, isOnTrial, trialHoursLeft } from "@/lib/auth";
+import { OWNER_EMAIL } from "@/lib/constants";
 import { Sidebar } from "@/components/layout/sidebar";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { Header } from "@/components/layout/header";
@@ -11,10 +12,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   const onTrial = isOnTrial(user);
   const hoursLeft = trialHoursLeft(user);
+  const isOwner = user.email === OWNER_EMAIL;
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar />
+      <Sidebar isOwner={isOwner} />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header />
         {onTrial && (

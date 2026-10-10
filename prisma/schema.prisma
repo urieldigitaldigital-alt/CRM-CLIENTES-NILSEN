@@ -117,6 +117,7 @@ model User {
   notifications       Notification[]
   activityLogs        ActivityLog[]
   notes               Note[]
+  subscriptionPayments SubscriptionPayment[]
 }
 
 model NotificationPreference {
@@ -325,4 +326,20 @@ model ActivityLog {
   createdAt DateTime     @default(now())
 
   @@index([clientId, createdAt])
+}
+
+// Billing events for Operaciones' own subscription (Whop), not to be
+// confused with Payment (a CRM user's clients' invoices). Logged from the
+// Whop webhook on payment.succeeded so the admin panel can show real
+// revenue history instead of just current subscriptionStatus.
+model SubscriptionPayment {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount        Float
+  currency      String   @default("usd")
+  whopPaymentId String?  @unique
+  createdAt     DateTime @default(now())
+
+  @@index([createdAt])
 }

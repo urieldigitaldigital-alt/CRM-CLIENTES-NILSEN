@@ -9,6 +9,9 @@ interface WhopEvent {
     membership_id?: string | null;
     customer_email?: string | null;
     metadata?: Record<string, unknown> | null;
+    final_amount?: number | string | null;
+    amount?: number | string | null;
+    currency?: string | null;
   };
 }
 
@@ -48,6 +51,23 @@ export async function POST(request: NextRequest) {
           whopMembershipId: data.membership_id ?? user.whopMembershipId,
         },
       });
+
+      // Best-effort revenue log for the admin panel — never let a logging
+      // problem block the activation above, which already happened.
+      try {
+        const amountRaw = data.final_amount ?? data.amount;
+        const amount = amountRaw != null ? Number(amountRaw) : 8;
+        if (!Number.isNaN(amount)) {
+          await prisma.subscriptionPayment.create({
+            data: {
+              userId: user.id,
+              amount,
+              currency: data.currency ?? "usd",
+              whopPaymentId: data.id,
+            },
+          });
+        }
+      } catch {}
     }
   }
 

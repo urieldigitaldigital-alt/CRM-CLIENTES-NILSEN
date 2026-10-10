@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ShieldCheck } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -8,9 +9,7 @@ import { NotificationPrefsForm } from "@/components/configuracion/notification-p
 import { ThemeSelector } from "@/components/configuracion/theme-selector";
 import { PushSubscribeCard } from "@/components/configuracion/push-subscribe-card";
 import { CancelSubscriptionCard } from "@/components/configuracion/cancel-subscription-card";
-import { ActivateUserCard } from "@/components/configuracion/activate-user-card";
-
-const OWNER_EMAIL = "urielbarboza2020@gmail.com";
+import { OWNER_EMAIL } from "@/lib/constants";
 
 export default async function ConfiguracionPage() {
   const user = await requireUser();
@@ -61,7 +60,21 @@ export default async function ConfiguracionPage() {
 
       <CancelSubscriptionCard status={user.subscriptionStatus} />
 
-      {user.email === OWNER_EMAIL && <ActivateUserCard />}
+      {user.email === OWNER_EMAIL && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Panel de administrador</CardTitle>
+            <CardDescription>Usuarios, suscripciones e ingresos de toda la plataforma.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild variant="secondary" className="gap-1.5">
+              <Link href="/admin">
+                <ShieldCheck className="size-4" /> Ir al panel
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       <PushSubscribeCard />
 

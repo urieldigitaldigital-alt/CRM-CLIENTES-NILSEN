@@ -1,11 +1,12 @@
 import type { LucideIcon } from "lucide-react";
-import { LayoutDashboard, Users, CheckSquare, Calendar, Wallet, Bell, Settings } from "lucide-react";
+import { LayoutDashboard, Users, CheckSquare, Calendar, Wallet, Bell, Settings, ShieldCheck } from "lucide-react";
 
 export interface NavItem {
   href: string;
   label: string;
   icon: LucideIcon;
   mobilePrimary?: boolean;
+  ownerOnly?: boolean;
 }
 
 export const NAV_ITEMS: NavItem[] = [
@@ -16,4 +17,5 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/cobros", label: "Cobros", icon: Wallet, mobilePrimary: true },
   { href: "/notificaciones", label: "Notificaciones", icon: Bell },
   { href: "/configuracion", label: "Configuración", icon: Settings },
+  { href: "/admin", label: "Admin", icon: ShieldCheck, ownerOnly: true },
 ];
