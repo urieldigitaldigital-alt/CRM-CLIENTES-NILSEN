@@ -15,6 +15,22 @@ function getFrom() {
   return process.env.EMAIL_FROM ?? "Operaciones <onboarding@resend.dev>";
 }
 
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function textToHtml(value: string) {
+  return escapeHtml(value)
+    .split(/\n{2,}/)
+    .map((para) => `<p style="margin:0 0 12px;">${para.replace(/\n/g, "<br />")}</p>`)
+    .join("");
+}
+
 function renderEmail({
   preheader,
   heading,
@@ -26,11 +42,26 @@ function renderEmail({
   preheader: string;
   heading: string;
   body: string;
-  ctaLabel: string;
-  ctaUrl: string;
+  ctaLabel?: string;
+  ctaUrl?: string;
   footnote: string;
 }) {
   const logoUrl = `${getAppUrl()}/icons/icon-192.png`;
+  const ctaBlock =
+    ctaLabel && ctaUrl
+      ? `
+              <tr>
+                <td align="center" style="padding:28px 40px 8px;">
+                  <a href="${ctaUrl}" style="display:inline-block;background-color:#6c5ce7;color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;padding:13px 28px;border-radius:10px;">${ctaLabel}</a>
+                </td>
+              </tr>
+              <tr>
+                <td align="center" style="padding:8px 40px 32px;">
+                  <p style="margin:0;font-size:12px;line-height:1.5;color:#9a9db0;word-break:break-all;">Si el botón no funciona, copiá y pegá este enlace en tu navegador:<br /><a href="${ctaUrl}" style="color:#6c5ce7;">${ctaUrl}</a></p>
+                </td>
+              </tr>
+            `
+      : `<tr><td style="padding:12px;" /></tr>`;
   return `
   <!DOCTYPE html>
   <html lang="es">
@@ -65,16 +96,7 @@ function renderEmail({
                   <div style="font-size:15px;line-height:1.6;color:#3a3b47;">${body}</div>
                 </td>
               </tr>
-              <tr>
-                <td align="center" style="padding:28px 40px 8px;">
-                  <a href="${ctaUrl}" style="display:inline-block;background-color:#6c5ce7;color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;padding:13px 28px;border-radius:10px;">${ctaLabel}</a>
-                </td>
-              </tr>
-              <tr>
-                <td align="center" style="padding:8px 40px 32px;">
-                  <p style="margin:0;font-size:12px;line-height:1.5;color:#9a9db0;word-break:break-all;">Si el botón no funciona, copiá y pegá este enlace en tu navegador:<br /><a href="${ctaUrl}" style="color:#6c5ce7;">${ctaUrl}</a></p>
-                </td>
-              </tr>
+              ${ctaBlock}
               <tr>
                 <td style="padding:20px 40px;border-top:1px solid #eceeF5;">
                   <p style="margin:0;font-size:12px;line-height:1.6;color:#9a9db0;">${footnote}</p>
@@ -136,6 +158,29 @@ export async function sendPasswordResetEmail(email: string, name: string, token:
       ctaLabel: "Restablecer mi contraseña",
       ctaUrl: url,
       footnote: "Este enlace vence en 1 hora. Si no pediste este cambio, podés ignorar este mensaje — tu contraseña actual seguirá funcionando sin cambios.",
+    }),
+  });
+}
+
+export async function sendAdminMessageEmail(
+  email: string,
+  name: string,
+  subject: string,
+  message: string,
+  replyTo?: string
+) {
+  const resend = getClient();
+  const firstName = name.split(" ")[0];
+  await resend.emails.send({
+    from: getFrom(),
+    to: email,
+    replyTo,
+    subject,
+    html: renderEmail({
+      preheader: subject,
+      heading: `Hola, ${firstName}`,
+      body: textToHtml(message),
+      footnote: "Este mensaje te lo enviamos directamente desde el equipo de Operaciones.",
     }),
   });
 }

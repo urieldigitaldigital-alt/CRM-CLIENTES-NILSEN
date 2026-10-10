@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sendAdminMessageEmail } from "@/lib/email";
 import { OWNER_EMAIL } from "@/lib/constants";
 import type { SubscriptionStatus } from "@prisma/client";
 
@@ -45,4 +46,32 @@ export async function setUserStatusAction(userId: string, status: SubscriptionSt
   await requireOwner();
   await prisma.user.update({ where: { id: userId }, data: { subscriptionStatus: status } });
   revalidatePath("/admin");
+}
+
+export type SendMessageState = { error?: string; success?: string } | undefined;
+
+export async function sendUserMessageAction(
+  userId: string,
+  _prevState: SendMessageState,
+  formData: FormData
+): Promise<SendMessageState> {
+  const owner = await requireUser();
+  if (owner.email !== OWNER_EMAIL) {
+    return { error: "No autorizado." };
+  }
+
+  const subject = String(formData.get("subject") ?? "").trim();
+  const message = String(formData.get("message") ?? "").trim();
+  if (!subject || !message) return { error: "Completá el asunto y el mensaje." };
+
+  const target = await prisma.user.findUnique({ where: { id: userId } });
+  if (!target) return { error: "No se encontró el usuario." };
+
+  try {
+    await sendAdminMessageEmail(target.email, target.name, subject, message, owner.email);
+  } catch {
+    return { error: "No pudimos enviar el email. Probá de nuevo en un momento." };
+  }
+
+  return { success: `Mensaje enviado a ${target.email}.` };
 }

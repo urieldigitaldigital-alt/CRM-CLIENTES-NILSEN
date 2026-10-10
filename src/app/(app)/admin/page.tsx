@@ -25,6 +25,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { StatCard } from "@/components/dashboard/stat-card";
 import { UserStatusSelect } from "@/components/admin/user-status-select";
 import { ActivateByEmailForm } from "@/components/admin/activate-by-email-form";
+import { SendMessageDialog } from "@/components/admin/send-message-dialog";
 import { SubscriptionStatus } from "@prisma/client";
 
 const STATUS_TABS: { value: string; label: string }[] = [
@@ -229,6 +230,7 @@ export default async function AdminPage({
                 <TableHead>Verificado</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead>Uso</TableHead>
+                <TableHead>Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -266,6 +268,9 @@ export default async function AdminPage({
                     <TableCell className="text-xs text-muted">
                       {u._count.clients} clientes · {u._count.tasks} tareas · {u._count.meetings} reuniones ·{" "}
                       {u._count.payments} cobros
+                    </TableCell>
+                    <TableCell>
+                      <SendMessageDialog userId={u.id} email={u.email} />
                     </TableCell>
                   </TableRow>
                 );
